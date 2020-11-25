@@ -7,13 +7,13 @@
 			"metadata": "Data Factory name",
 			"defaultValue": "kavitatrainingdatafactoryv2"
 		},
-		"DLSproviderFunctionConnection_functionKey": {
-			"type": "secureString",
-			"metadata": "Secure string for 'functionKey' of 'DLSproviderFunctionConnection'"
-		},
 		"OrganizedDLSCOnnection_accountKey": {
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'OrganizedDLSCOnnection'"
+		},
+		"OrdersBlobStorageConnection_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'OrdersBlobStorageConnection'"
 		},
 		"KavitaBlobMetaDataSqlConnection_connectionString": {
 			"type": "secureString",
@@ -23,10 +23,6 @@
 			"type": "string",
 			"defaultValue": "https://kavitatrainingkeyvaultv2.vault.azure.net/"
 		},
-		"DLSproviderFunctionConnection_properties_typeProperties_functionAppUrl": {
-			"type": "string",
-			"defaultValue": "https://dlstargetprovider20201125160234.azurewebsites.net"
-		},
 		"OrganizedDLSCOnnection_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://kavitatrainingdls.dfs.core.windows.net"
@@ -34,6 +30,10 @@
 		"DLSTargetProviderFunctionCOnnection_properties_typeProperties_functionAppUrl": {
 			"type": "string",
 			"defaultValue": "https://dlstargetprovider20201125160234.azurewebsites.net"
+		},
+		"DLSproviderFunctionConnection_properties_typeProperties_functionAppUrl": {
+			"type": "string",
+			"defaultValue": "https://dlstargetprovider20201125040523.azurewebsites.net"
 		}
 	},
 	"variables": {
@@ -54,23 +54,6 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/DLSproviderFunctionConnection')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "AzureFunction",
-				"typeProperties": {
-					"functionAppUrl": "[parameters('DLSproviderFunctionConnection_properties_typeProperties_functionAppUrl')]",
-					"functionKey": {
-						"type": "SecureString",
-						"value": "[parameters('DLSproviderFunctionConnection_functionKey')]"
-					}
-				}
-			},
-			"dependsOn": []
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/OrganizedDLSCOnnection')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
@@ -83,6 +66,19 @@
 						"type": "SecureString",
 						"value": "[parameters('OrganizedDLSCOnnection_accountKey')]"
 					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/OrdersBlobStorageConnection')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"connectionString": "[parameters('OrdersBlobStorageConnection_connectionString')]"
 				}
 			},
 			"dependsOn": []
@@ -126,6 +122,29 @@
 							"type": "LinkedServiceReference"
 						},
 						"secretName": "sqlpassword"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/KavitaTrainingKeyVaultConnection')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DLSproviderFunctionConnection')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureFunction",
+				"typeProperties": {
+					"functionAppUrl": "[parameters('DLSproviderFunctionConnection_properties_typeProperties_functionAppUrl')]",
+					"functionKey": {
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "KavitaTrainingKeyVaultConnection",
+							"type": "LinkedServiceReference"
+						},
+						"secretName": "functionkey"
 					}
 				}
 			},
@@ -206,6 +225,84 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/OrganizedDLSCOnnection')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/OrdersBlobStorageDataSet')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "OrdersBlobStorageConnection",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"containerName": {
+						"type": "string"
+					},
+					"folder": {
+						"type": "string"
+					},
+					"fileName": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": {
+							"value": "@dataset().fileName",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@dataset().folder",
+							"type": "Expression"
+						},
+						"container": {
+							"value": "@dataset().containerName",
+							"type": "Expression"
+						}
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "orderid",
+						"type": "String"
+					},
+					{
+						"name": "orderdate",
+						"type": "String"
+					},
+					{
+						"name": "customer",
+						"type": "String"
+					},
+					{
+						"name": "product",
+						"type": "String"
+					},
+					{
+						"name": "units",
+						"type": "String"
+					},
+					{
+						"name": "billingaddress",
+						"type": "String"
+					},
+					{
+						"name": "remarks",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/OrdersBlobStorageConnection')]"
 			]
 		},
 		{
@@ -346,7 +443,7 @@
 							"isSequential": true,
 							"activities": [
 								{
-									"name": "DLS Provider Function",
+									"name": "Prepare DLS Target Info",
 									"type": "AzureFunctionActivity",
 									"dependsOn": [],
 									"policy": {
@@ -373,6 +470,222 @@
 										"referenceName": "DLSproviderFunctionConnection",
 										"type": "LinkedServiceReference"
 									}
+								},
+								{
+									"name": "Copy Blob Storage to DLS",
+									"type": "Copy",
+									"dependsOn": [
+										{
+											"activity": "Prepare DLS Target Info",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "DelimitedTextSource",
+											"storeSettings": {
+												"type": "AzureBlobStorageReadSettings",
+												"recursive": true
+											},
+											"formatSettings": {
+												"type": "DelimitedTextReadSettings"
+											}
+										},
+										"sink": {
+											"type": "ParquetSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "ParquetWriteSettings"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"mappings": [
+												{
+													"source": {
+														"name": "orderid",
+														"type": "Int32",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "orderid",
+														"type": "String",
+														"physicalType": "UTF8"
+													}
+												},
+												{
+													"source": {
+														"name": "orderdate",
+														"type": "String",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "orderdate",
+														"type": "String",
+														"physicalType": "UTF8"
+													}
+												},
+												{
+													"source": {
+														"name": "customer",
+														"type": "Int32",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "customer",
+														"type": "String",
+														"physicalType": "UTF8"
+													}
+												},
+												{
+													"source": {
+														"name": "product",
+														"type": "Int32",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "product",
+														"type": "String",
+														"physicalType": "UTF8"
+													}
+												},
+												{
+													"source": {
+														"name": "units",
+														"type": "Int32",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "units",
+														"type": "String",
+														"physicalType": "UTF8"
+													}
+												},
+												{
+													"source": {
+														"name": "billingaddress",
+														"type": "String",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "billingaddress",
+														"type": "String",
+														"physicalType": "UTF8"
+													}
+												},
+												{
+													"source": {
+														"name": "remarks",
+														"type": "String",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "remarks",
+														"type": "String",
+														"physicalType": "UTF8"
+													}
+												}
+											],
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "OrdersBlobStorageDataSet",
+											"type": "DatasetReference",
+											"parameters": {
+												"containerName": {
+													"value": "@activity('Prepare DLS Target Info').output.containerName",
+													"type": "Expression"
+												},
+												"folder": {
+													"value": "@activity('Prepare DLS Target Info').output.path",
+													"type": "Expression"
+												},
+												"fileName": {
+													"value": "@activity('Prepare DLS Target Info').output.blobName",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "OrganizedOrdersDLSDataSet",
+											"type": "DatasetReference",
+											"parameters": {
+												"fileSystemName": "organized-data",
+												"folder": {
+													"value": "@activity('Prepare DLS Target Info').output.targetOrganizedFullPath",
+													"type": "Expression"
+												},
+												"fileName": {
+													"value": "@activity('Prepare DLS Target Info').output.targetOrganizedFileName",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								},
+								{
+									"name": "Update Blob Meta Data",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [
+										{
+											"activity": "Copy Blob Storage to DLS",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": "[[dbo].[uspUpdateBlobMetadata]",
+										"storedProcedureParameters": {
+											"dlsLocation": {
+												"value": {
+													"value": "@item().RecordId",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"recordId": {
+												"value": {
+													"value": "@concat(activity('Prepare DLS Target Info').output.targetOrganizedFullPath,activity('Prepare DLS Target Info').output.targetOrganizedFileName)",
+													"type": "Expression"
+												},
+												"type": "Int32"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "KavitaBlobMetaDataSqlConnection",
+										"type": "LinkedServiceReference"
+									}
 								}
 							]
 						}
@@ -383,7 +696,10 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/KavitaBlobMetadataDataSet')]",
-				"[concat(variables('factoryId'), '/linkedServices/DLSproviderFunctionConnection')]"
+				"[concat(variables('factoryId'), '/linkedServices/DLSproviderFunctionConnection')]",
+				"[concat(variables('factoryId'), '/datasets/OrdersBlobStorageDataSet')]",
+				"[concat(variables('factoryId'), '/datasets/OrganizedOrdersDLSDataSet')]",
+				"[concat(variables('factoryId'), '/linkedServices/KavitaBlobMetaDataSqlConnection')]"
 			]
 		}
 	]

@@ -11,13 +11,13 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'KavitaBlobMetaDataSqlConnection'"
 		},
-		"DLSproviderFunctionConnection_functionKey": {
-			"type": "secureString",
-			"metadata": "Secure string for 'functionKey' of 'DLSproviderFunctionConnection'"
-		},
 		"OrganizedDLSCOnnection_accountKey": {
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'OrganizedDLSCOnnection'"
+		},
+		"OrdersBlobStorageConnection_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'OrdersBlobStorageConnection'"
 		},
 		"DLSTargetProviderFunctionCOnnection_properties_typeProperties_functionAppUrl": {
 			"type": "string",
@@ -29,7 +29,7 @@
 		},
 		"DLSproviderFunctionConnection_properties_typeProperties_functionAppUrl": {
 			"type": "string",
-			"defaultValue": "https://dlstargetprovider20201125160234.azurewebsites.net"
+			"defaultValue": "https://dlstargetprovider20201125040523.azurewebsites.net"
 		},
 		"OrganizedDLSCOnnection_properties_typeProperties_url": {
 			"type": "string",
@@ -62,11 +62,11 @@
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
 					},
-					"DLSproviderFunctionConnection_functionKey": {
-						"value": "[parameters('DLSproviderFunctionConnection_functionKey')]"
-					},
 					"OrganizedDLSCOnnection_accountKey": {
 						"value": "[parameters('OrganizedDLSCOnnection_accountKey')]"
+					},
+					"OrdersBlobStorageConnection_connectionString": {
+						"value": "[parameters('OrdersBlobStorageConnection_connectionString')]"
 					},
 					"KavitaBlobMetaDataSqlConnection_connectionString": {
 						"value": "[parameters('KavitaBlobMetaDataSqlConnection_connectionString')]"
@@ -74,14 +74,14 @@
 					"KavitaTrainingKeyVaultConnection_properties_typeProperties_baseUrl": {
 						"value": "[parameters('KavitaTrainingKeyVaultConnection_properties_typeProperties_baseUrl')]"
 					},
-					"DLSproviderFunctionConnection_properties_typeProperties_functionAppUrl": {
-						"value": "[parameters('DLSproviderFunctionConnection_properties_typeProperties_functionAppUrl')]"
-					},
 					"OrganizedDLSCOnnection_properties_typeProperties_url": {
 						"value": "[parameters('OrganizedDLSCOnnection_properties_typeProperties_url')]"
 					},
 					"DLSTargetProviderFunctionCOnnection_properties_typeProperties_functionAppUrl": {
 						"value": "[parameters('DLSTargetProviderFunctionCOnnection_properties_typeProperties_functionAppUrl')]"
+					},
+					"DLSproviderFunctionConnection_properties_typeProperties_functionAppUrl": {
+						"value": "[parameters('DLSproviderFunctionConnection_properties_typeProperties_functionAppUrl')]"
 					}
 				}
 			},
