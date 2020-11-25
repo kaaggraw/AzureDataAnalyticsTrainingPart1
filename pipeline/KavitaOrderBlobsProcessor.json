@@ -49,7 +49,7 @@
 					"isSequential": true,
 					"activities": [
 						{
-							"name": "Azure DLS Target Info",
+							"name": "DLS Provider Function",
 							"type": "AzureFunctionActivity",
 							"dependsOn": [],
 							"policy": {
@@ -73,7 +73,7 @@
 								}
 							},
 							"linkedServiceName": {
-								"referenceName": "DLSTargetProviderFunctionCOnnection",
+								"referenceName": "DLSproviderFunctionConnection",
 								"type": "LinkedServiceReference"
 							}
 						}
