@@ -29,7 +29,7 @@
 		},
 		"DLSproviderFunctionConnection_properties_typeProperties_functionAppUrl": {
 			"type": "string",
-			"defaultValue": "https://dlstargetprovider20201125040523.azurewebsites.net"
+			"defaultValue": "https://dlstargetprovider20201125040523.azurewebsites.net/"
 		},
 		"OrganizedDLSCOnnection_properties_typeProperties_url": {
 			"type": "string",

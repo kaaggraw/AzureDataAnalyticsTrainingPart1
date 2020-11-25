@@ -33,7 +33,7 @@
 		},
 		"DLSproviderFunctionConnection_properties_typeProperties_functionAppUrl": {
 			"type": "string",
-			"defaultValue": "https://dlstargetprovider20201125040523.azurewebsites.net"
+			"defaultValue": "https://dlstargetprovider20201125040523.azurewebsites.net/"
 		}
 	},
 	"variables": {
@@ -462,7 +462,7 @@
 											"Accept": "application/json"
 										},
 										"body": {
-											"value": "@concat('{​\"blobPath\":\"', item().Path, '\", \"blobName\":\"', item().BlobName, '\"}​')",
+											"value": "@concat('{\"blobPath\":\"', item().Path, '\", \"blobName\":\"', item().BlobName, '\"}')",
 											"type": "Expression"
 										}
 									},
@@ -668,14 +668,14 @@
 										"storedProcedureParameters": {
 											"dlsLocation": {
 												"value": {
-													"value": "@item().RecordId",
+													"value": "@concat(activity('Prepare DLS Target Info').output.targetOrganizedFullPath, '/', activity('Prepare DLS Target Info').output.targetOrganizedFileName)",
 													"type": "Expression"
 												},
 												"type": "String"
 											},
 											"recordId": {
 												"value": {
-													"value": "@concat(activity('Prepare DLS Target Info').output.targetOrganizedFullPath,activity('Prepare DLS Target Info').output.targetOrganizedFileName)",
+													"value": "@item().RecordId",
 													"type": "Expression"
 												},
 												"type": "Int32"

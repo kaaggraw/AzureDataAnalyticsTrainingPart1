@@ -21,7 +21,7 @@
 			"value": "https://kavitatrainingkeyvaultv2.vault.azure.net/"
 		},
 		"DLSproviderFunctionConnection_properties_typeProperties_functionAppUrl": {
-			"value": "https://dlstargetprovider20201125040523.azurewebsites.net"
+			"value": "https://dlstargetprovider20201125040523.azurewebsites.net/"
 		},
 		"OrganizedDLSCOnnection_properties_typeProperties_url": {
 			"value": "https://kavitatrainingdls.dfs.core.windows.net"
