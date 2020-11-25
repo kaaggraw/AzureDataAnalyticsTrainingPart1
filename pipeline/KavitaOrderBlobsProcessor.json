@@ -249,6 +249,49 @@
 									}
 								}
 							]
+						},
+						{
+							"name": "Update Blob Meta Data",
+							"type": "SqlServerStoredProcedure",
+							"dependsOn": [
+								{
+									"activity": "Copy Blob Storage to DLS",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"storedProcedureName": "[dbo].[uspUpdateBlobMetadata]",
+								"storedProcedureParameters": {
+									"dlsLocation": {
+										"value": {
+											"value": "@item().RecordId",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"recordId": {
+										"value": {
+											"value": "@concat(activity('Prepare DLS Target Info').output.targetOrganizedFullPath,activity('Prepare DLS Target Info').output.targetOrganizedFileName)",
+											"type": "Expression"
+										},
+										"type": "Int32"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "KavitaBlobMetaDataSqlConnection",
+								"type": "LinkedServiceReference"
+							}
 						}
 					]
 				}
