@@ -5,6 +5,9 @@
 		"factoryName": {
 			"value": "kavitatrainingdatafactoryv2"
 		},
+		"KavitaBlobMetaDataSqlConnection_connectionString": {
+			"value": ""
+		},
 		"KavitaTrainingKeyVaultConnection_properties_typeProperties_baseUrl": {
 			"value": "https://kavitatrainingkeyvaultv2.vault.azure.net/"
 		}
