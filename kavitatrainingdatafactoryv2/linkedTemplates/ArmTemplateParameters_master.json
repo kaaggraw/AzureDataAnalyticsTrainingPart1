@@ -8,8 +8,23 @@
 		"KavitaBlobMetaDataSqlConnection_connectionString": {
 			"value": ""
 		},
+		"DLSproviderFunctionConnection_functionKey": {
+			"value": ""
+		},
+		"OrganizedDLSCOnnection_accountKey": {
+			"value": ""
+		},
+		"DLSTargetProviderFunctionCOnnection_properties_typeProperties_functionAppUrl": {
+			"value": "https://dlstargetprovider20201125160234.azurewebsites.net"
+		},
 		"KavitaTrainingKeyVaultConnection_properties_typeProperties_baseUrl": {
 			"value": "https://kavitatrainingkeyvaultv2.vault.azure.net/"
+		},
+		"DLSproviderFunctionConnection_properties_typeProperties_functionAppUrl": {
+			"value": "https://dlstargetprovider20201125160234.azurewebsites.net"
+		},
+		"OrganizedDLSCOnnection_properties_typeProperties_url": {
+			"value": "https://kavitatrainingdls.dfs.core.windows.net"
 		},
 		"containerUri": {
 			"value": ""

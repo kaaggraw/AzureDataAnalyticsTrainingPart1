@@ -6,34 +6,6 @@
 			"type": "string",
 			"metadata": "Data Factory name",
 			"defaultValue": "kavitatrainingdatafactoryv2"
-		},
-		"KavitaBlobMetaDataSqlConnection_connectionString": {
-			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'KavitaBlobMetaDataSqlConnection'"
-		},
-		"DLSproviderFunctionConnection_functionKey": {
-			"type": "secureString",
-			"metadata": "Secure string for 'functionKey' of 'DLSproviderFunctionConnection'"
-		},
-		"OrganizedDLSCOnnection_accountKey": {
-			"type": "secureString",
-			"metadata": "Secure string for 'accountKey' of 'OrganizedDLSCOnnection'"
-		},
-		"DLSTargetProviderFunctionCOnnection_properties_typeProperties_functionAppUrl": {
-			"type": "string",
-			"defaultValue": "https://dlstargetprovider20201125160234.azurewebsites.net"
-		},
-		"KavitaTrainingKeyVaultConnection_properties_typeProperties_baseUrl": {
-			"type": "string",
-			"defaultValue": "https://kavitatrainingkeyvaultv2.vault.azure.net/"
-		},
-		"DLSproviderFunctionConnection_properties_typeProperties_functionAppUrl": {
-			"type": "string",
-			"defaultValue": "https://dlstargetprovider20201125160234.azurewebsites.net"
-		},
-		"OrganizedDLSCOnnection_properties_typeProperties_url": {
-			"type": "string",
-			"defaultValue": "https://kavitatrainingdls.dfs.core.windows.net"
 		}
 	},
 	"variables": {
@@ -68,8 +40,7 @@
 							},
 							"dataset": {
 								"referenceName": "KavitaBlobMetadataDataSet",
-								"type": "DatasetReference",
-								"parameters": {}
+								"type": "DatasetReference"
 							},
 							"firstRowOnly": false
 						}
@@ -130,92 +101,7 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/KavitaBlobMetadataDataSet')]",
 				"[concat(variables('factoryId'), '/linkedServices/DLSproviderFunctionConnection')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/KavitaBlobMetadataDataSet')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "KavitaBlobMetaDataSqlConnection",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [
-					{
-						"name": "RecordId",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "RecordDate",
-						"type": "datetime",
-						"precision": 23,
-						"scale": 3
-					},
-					{
-						"name": "BlobId",
-						"type": "nvarchar"
-					},
-					{
-						"name": "BlobName",
-						"type": "nvarchar"
-					},
-					{
-						"name": "DisplayName",
-						"type": "nvarchar"
-					},
-					{
-						"name": "Path",
-						"type": "nvarchar"
-					},
-					{
-						"name": "LastModified",
-						"type": "datetime",
-						"precision": 23,
-						"scale": 3
-					},
-					{
-						"name": "Size",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "MediaType",
-						"type": "nvarchar"
-					},
-					{
-						"name": "IsFolder",
-						"type": "bit"
-					},
-					{
-						"name": "ETag",
-						"type": "nvarchar"
-					},
-					{
-						"name": "FileLocator",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ProcessStatus",
-						"type": "nvarchar"
-					},
-					{
-						"name": "DLSTargetLocation",
-						"type": "nvarchar"
-					}
-				],
-				"typeProperties": {
-					"schema": "dbo",
-					"table": "BlobMetadata"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/KavitaBlobMetaDataSqlConnection')]"
 			]
 		},
 		{
@@ -226,7 +112,7 @@
 				"annotations": [],
 				"type": "AzureFunction",
 				"typeProperties": {
-					"functionAppUrl": "[parameters('DLSTargetProviderFunctionCOnnection_properties_typeProperties_functionAppUrl')]",
+					"functionAppUrl": "https://dlstargetprovider20201125160234.azurewebsites.net",
 					"functionKey": {
 						"type": "AzureKeyVaultSecret",
 						"store": {
@@ -235,44 +121,6 @@
 						},
 						"secretName": "functionkey"
 					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/KavitaTrainingKeyVaultConnection')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/KavitaBlobMetaDataSqlConnection')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "AzureSqlDatabase",
-				"typeProperties": {
-					"connectionString": "[parameters('KavitaBlobMetaDataSqlConnection_connectionString')]",
-					"password": {
-						"type": "AzureKeyVaultSecret",
-						"store": {
-							"referenceName": "KavitaTrainingKeyVaultConnection",
-							"type": "LinkedServiceReference"
-						},
-						"secretName": "sqlpassword"
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/KavitaTrainingKeyVaultConnection')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/KavitaTrainingKeyVaultConnection')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "AzureKeyVault",
-				"typeProperties": {
-					"baseUrl": "[parameters('KavitaTrainingKeyVaultConnection_properties_typeProperties_baseUrl')]"
 				}
 			},
 			"dependsOn": []
@@ -285,10 +133,10 @@
 				"annotations": [],
 				"type": "AzureFunction",
 				"typeProperties": {
-					"functionAppUrl": "[parameters('DLSproviderFunctionConnection_properties_typeProperties_functionAppUrl')]",
+					"functionAppUrl": "https://dlstargetprovider20201125160234.azurewebsites.net",
 					"functionKey": {
 						"type": "SecureString",
-						"value": "[parameters('DLSproviderFunctionConnection_functionKey')]"
+						"value": "**********"
 					}
 				}
 			},
@@ -302,10 +150,10 @@
 				"annotations": [],
 				"type": "AzureBlobFS",
 				"typeProperties": {
-					"url": "[parameters('OrganizedDLSCOnnection_properties_typeProperties_url')]",
+					"url": "https://kavitatrainingdls.dfs.core.windows.net",
 					"accountKey": {
 						"type": "SecureString",
-						"value": "[parameters('OrganizedDLSCOnnection_accountKey')]"
+						"value": "**********"
 					}
 				}
 			},
