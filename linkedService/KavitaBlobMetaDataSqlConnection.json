@@ -1,0 +1,19 @@
+{
+	"name": "KavitaBlobMetaDataSqlConnection",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "AzureSqlDatabase",
+		"typeProperties": {
+			"connectionString": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=kavitatrainingserverv2.database.windows.net;Initial Catalog=kavitatrainingsqldatabasev2;User ID=kaaggraw",
+			"password": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "KavitaTrainingKeyVaultConnection",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "sqlpassword"
+			}
+		}
+	}
+}
