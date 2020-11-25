@@ -270,14 +270,14 @@
 								"storedProcedureParameters": {
 									"dlsLocation": {
 										"value": {
-											"value": "@item().RecordId",
+											"value": "@concat(activity('Prepare DLS Target Info').output.targetOrganizedFullPath, '/', activity('Prepare DLS Target Info').output.targetOrganizedFileName)",
 											"type": "Expression"
 										},
 										"type": "String"
 									},
 									"recordId": {
 										"value": {
-											"value": "@concat(activity('Prepare DLS Target Info').output.targetOrganizedFullPath, '/', activity('Prepare DLS Target Info').output.targetOrganizedFileName)",
+											"value": "@item().RecordId",
 											"type": "Expression"
 										},
 										"type": "Int32"
