@@ -76,6 +76,179 @@
 								"referenceName": "DLSproviderFunctionConnection",
 								"type": "LinkedServiceReference"
 							}
+						},
+						{
+							"name": "Copy Blob Storage to DLS",
+							"type": "Copy",
+							"dependsOn": [
+								{
+									"activity": "Prepare DLS Target Info",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "DelimitedTextSource",
+									"storeSettings": {
+										"type": "AzureBlobStorageReadSettings",
+										"recursive": true
+									},
+									"formatSettings": {
+										"type": "DelimitedTextReadSettings"
+									}
+								},
+								"sink": {
+									"type": "ParquetSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "ParquetWriteSettings"
+									}
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"mappings": [
+										{
+											"source": {
+												"name": "orderid",
+												"type": "Int32",
+												"physicalType": "String"
+											},
+											"sink": {
+												"name": "orderid",
+												"type": "String",
+												"physicalType": "UTF8"
+											}
+										},
+										{
+											"source": {
+												"name": "orderdate",
+												"type": "String",
+												"physicalType": "String"
+											},
+											"sink": {
+												"name": "orderdate",
+												"type": "String",
+												"physicalType": "UTF8"
+											}
+										},
+										{
+											"source": {
+												"name": "customer",
+												"type": "Int32",
+												"physicalType": "String"
+											},
+											"sink": {
+												"name": "customer",
+												"type": "String",
+												"physicalType": "UTF8"
+											}
+										},
+										{
+											"source": {
+												"name": "product",
+												"type": "Int32",
+												"physicalType": "String"
+											},
+											"sink": {
+												"name": "product",
+												"type": "String",
+												"physicalType": "UTF8"
+											}
+										},
+										{
+											"source": {
+												"name": "units",
+												"type": "Int32",
+												"physicalType": "String"
+											},
+											"sink": {
+												"name": "units",
+												"type": "String",
+												"physicalType": "UTF8"
+											}
+										},
+										{
+											"source": {
+												"name": "billingaddress",
+												"type": "String",
+												"physicalType": "String"
+											},
+											"sink": {
+												"name": "billingaddress",
+												"type": "String",
+												"physicalType": "UTF8"
+											}
+										},
+										{
+											"source": {
+												"name": "remarks",
+												"type": "String",
+												"physicalType": "String"
+											},
+											"sink": {
+												"name": "remarks",
+												"type": "String",
+												"physicalType": "UTF8"
+											}
+										}
+									],
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "OrdersBlobStorageDataSet",
+									"type": "DatasetReference",
+									"parameters": {
+										"containerName": {
+											"value": "@activity('Prepare DLS Target Info').output.containerName",
+											"type": "Expression"
+										},
+										"folder": {
+											"value": "@activity('Prepare DLS Target Info').output.path",
+											"type": "Expression"
+										},
+										"fileName": {
+											"value": "@activity('Prepare DLS Target Info').output.blobName",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "OrganizedOrdersDLSDataSet",
+									"type": "DatasetReference",
+									"parameters": {
+										"fileSystemName": "organized-data",
+										"folder": {
+											"value": "@activity('Prepare DLS Target Info').output.targetOrganizedFullPath",
+											"type": "Expression"
+										},
+										"fileName": {
+											"value": "@activity('Prepare DLS Target Info').output.targetOrganizedFileName",
+											"type": "Expression"
+										}
+									}
+								}
+							]
 						}
 					]
 				}
