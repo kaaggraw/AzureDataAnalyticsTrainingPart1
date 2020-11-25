@@ -1,0 +1,18 @@
+{
+	"name": "DLSTargetProviderFunctionCOnnection",
+	"properties": {
+		"annotations": [],
+		"type": "AzureFunction",
+		"typeProperties": {
+			"functionAppUrl": "https://dlstargetprovider20201125040523.azurewebsites.net",
+			"functionKey": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "KavitaTrainingKeyVaultConnection",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "functionkey"
+			}
+		}
+	}
+}
