@@ -15,9 +15,7 @@
 			},
 			{
 				"name": "OrderDate",
-				"type": "datetime",
-				"precision": 23,
-				"scale": 3
+				"type": "varchar"
 			},
 			{
 				"name": "CustomerFullName",
