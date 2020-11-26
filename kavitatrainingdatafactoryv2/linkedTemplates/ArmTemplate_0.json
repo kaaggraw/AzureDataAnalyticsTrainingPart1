@@ -19,6 +19,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'KavitaBlobMetaDataSqlConnection'"
 		},
+		"AzureSqlDataWareHourseLinkedService_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'AzureSqlDataWareHourseLinkedService'"
+		},
 		"KavitaTrainingKeyVaultConnection_properties_typeProperties_baseUrl": {
 			"type": "string",
 			"defaultValue": "https://kavitatrainingkeyvaultv2.vault.azure.net/"
@@ -238,13 +242,16 @@
 				},
 				"parameters": {
 					"containerName": {
-						"type": "string"
+						"type": "string",
+						"defaultValue": "orders"
 					},
 					"folder": {
-						"type": "string"
+						"type": "string",
+						"defaultValue": "/"
 					},
 					"fileName": {
-						"type": "string"
+						"type": "string",
+						"defaultValue": "orders-1.csv"
 					}
 				},
 				"annotations": [],
@@ -400,6 +407,29 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/AzureSqlDataWareHourseLinkedService')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDW",
+				"typeProperties": {
+					"connectionString": "[parameters('AzureSqlDataWareHourseLinkedService_connectionString')]",
+					"password": {
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "KavitaTrainingKeyVaultConnection",
+							"type": "LinkedServiceReference"
+						},
+						"secretName": "sqlpassword"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/KavitaTrainingKeyVaultConnection')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/KavitaBlobMetadataDataSet')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -516,6 +546,176 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/KavitaBlobMetaDataSqlConnection')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ProcessedOrdersSQLWareHouseDataSet')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDataWareHourseLinkedService",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlDWTable",
+				"schema": [
+					{
+						"name": "OrderId",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "OrderDate",
+						"type": "varchar"
+					},
+					{
+						"name": "CustomerFullName",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CustomerType",
+						"type": "varchar"
+					},
+					{
+						"name": "CustomerLocation",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ProductTitle",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Units",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "UnitPrice",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Amount",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Discount",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Region",
+						"type": "varchar"
+					},
+					{
+						"name": "BillingAddress",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ActiveStatus",
+						"type": "varchar"
+					},
+					{
+						"name": "UnitsInStock",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Credit",
+						"type": "int",
+						"precision": 10
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "ProcessedOrders"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDataWareHourseLinkedService')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ProcessOrdersDataFlow')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "This dataflow processes internet order blobs from the storage account to DQ",
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "OrdersBlobStorageDataSet",
+								"type": "DatasetReference"
+							},
+							"name": "OrdersInputSource"
+						},
+						{
+							"dataset": {
+								"referenceName": "CustomerDLSDataSet",
+								"type": "DatasetReference"
+							},
+							"name": "Customers"
+						},
+						{
+							"dataset": {
+								"referenceName": "ProductsDLSDataSet",
+								"type": "DatasetReference"
+							},
+							"name": "Products"
+						},
+						{
+							"dataset": {
+								"referenceName": "CapitalCitiesDataSet",
+								"type": "DatasetReference"
+							},
+							"name": "CapitalCities"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ProcessedOrdersSQLWareHouseDataSet",
+								"type": "DatasetReference"
+							},
+							"name": "ProcessedOrdersSink"
+						}
+					],
+					"transformations": [
+						{
+							"name": "OrderAndCustomers"
+						},
+						{
+							"name": "OrdersCustomersProductsOutput"
+						},
+						{
+							"name": "OrderJoinedOutput"
+						},
+						{
+							"name": "SelectedColumns"
+						},
+						{
+							"name": "PrepareColumns"
+						},
+						{
+							"name": "CleansedOrders"
+						},
+						{
+							"name": "ProcessedOrders"
+						}
+					],
+					"script": "source(output(\n\t\torderid as integer,\n\t\torderdate as string,\n\t\tcustomer as integer,\n\t\tproduct as integer,\n\t\tunits as integer,\n\t\tbillingaddress as string,\n\t\tremarks as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> OrdersInputSource\nsource(output(\n\t\tcustomerid as integer,\n\t\tfullname as string,\n\t\taddress as string,\n\t\tcredit as integer,\n\t\tstatus as boolean\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> Customers\nsource(output(\n\t\titemdiscount as short,\n\t\tproductid as short,\n\t\ttitle as string,\n\t\tunitprice as short,\n\t\tunitsinstock as short\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tdocumentForm: 'arrayOfDocuments') ~> Products\nsource(output(\n\t\tCityId as integer,\n\t\tCityName as string,\n\t\tRegion as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> CapitalCities\nOrdersInputSource, Customers join(customer == customerid,\n\tjoinType:'inner',\n\tbroadcast: 'right')~> OrderAndCustomers\nOrderAndCustomers, Products join(product == productid,\n\tjoinType:'inner',\n\tbroadcast: 'right')~> OrdersCustomersProductsOutput\nOrdersCustomersProductsOutput, CapitalCities join(address == CityName,\n\tjoinType:'inner',\n\tbroadcast: 'right')~> OrderJoinedOutput\nOrderJoinedOutput select(mapColumn(\n\t\torderid,\n\t\torderdate,\n\t\tunits,\n\t\tbillingaddress,\n\t\tfullname,\n\t\tcustomerlocation = address,\n\t\tcredit,\n\t\tstatus,\n\t\titemdiscount,\n\t\ttitle,\n\t\tunitprice,\n\t\tunitsinstock,\n\t\tRegion\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SelectedColumns\nSelectedColumns derive(orderamount = units * unitprice,\n\t\tdiscountamount = toInteger(units * unitprice * itemdiscount * 0.01),\n\t\tcustomertype = iif(credit<1000, \"silver\", iif(credit>=1000 && credit <10000,\"Gold\",\"Platinum\")),\n\t\tactivestatus = iif(status,\"Active\",\"InACtive\")) ~> PrepareColumns\nPrepareColumns select(mapColumn(\n\t\torderid,\n\t\torderdate,\n\t\tunits,\n\t\tbillingaddress,\n\t\tfullname,\n\t\tcustomerlocation,\n\t\ttitle,\n\t\tunitprice,\n\t\tunitsinstock,\n\t\tRegion,\n\t\torderamount,\n\t\tdiscountamount,\n\t\tcustomertype,\n\t\tactivestatus,\n\t\tcredit\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> CleansedOrders\nCleansedOrders filter(credit >= orderamount && unitsinstock >= units && activestatus=='Active') ~> ProcessedOrders\nProcessedOrders sink(input(\n\t\tOrderId as integer,\n\t\tOrderDate as string,\n\t\tCustomerFullName as string,\n\t\tCustomerType as string,\n\t\tCustomerLocation as string,\n\t\tProductTitle as string,\n\t\tUnits as integer,\n\t\tUnitPrice as integer,\n\t\tAmount as integer,\n\t\tDiscount as integer,\n\t\tRegion as string,\n\t\tBillingAddress as string,\n\t\tActiveStatus as string,\n\t\tUnitsInStock as integer,\n\t\tCredit as integer\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tstaged: true,\n\tmapColumn(\n\t\tOrderId = orderid,\n\t\tOrderDate = orderdate,\n\t\tCustomerFullName = fullname,\n\t\tCustomerType = customertype,\n\t\tCustomerLocation = customerlocation,\n\t\tProductTitle = title,\n\t\tUnits = units,\n\t\tUnitPrice = unitprice,\n\t\tAmount = orderamount,\n\t\tDiscount = discountamount,\n\t\tRegion,\n\t\tBillingAddress = billingaddress,\n\t\tActiveStatus = activestatus,\n\t\tUnitsInStock = unitsinstock,\n\t\tCredit = credit\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> ProcessedOrdersSink"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/OrdersBlobStorageDataSet')]",
+				"[concat(variables('factoryId'), '/datasets/CustomerDLSDataSet')]",
+				"[concat(variables('factoryId'), '/datasets/ProductsDLSDataSet')]",
+				"[concat(variables('factoryId'), '/datasets/CapitalCitiesDataSet')]",
+				"[concat(variables('factoryId'), '/datasets/ProcessedOrdersSQLWareHouseDataSet')]"
 			]
 		},
 		{
@@ -815,6 +1015,65 @@
 										"referenceName": "KavitaBlobMetaDataSqlConnection",
 										"type": "LinkedServiceReference"
 									}
+								},
+								{
+									"name": "ProcessOrdersDataFlow",
+									"type": "ExecuteDataFlow",
+									"dependsOn": [
+										{
+											"activity": "Prepare DLS Target Info",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"dataflow": {
+											"referenceName": "ProcessOrdersDataFlow",
+											"type": "DataFlowReference",
+											"parameters": {},
+											"datasetParameters": {
+												"OrdersInputSource": {
+													"containerName": {
+														"value": "@activity('Prepare DLS Target Info').output.containerName",
+														"type": "Expression"
+													},
+													"folder": {
+														"value": "@activity('Prepare DLS Target Info').output.path",
+														"type": "Expression"
+													},
+													"fileName": {
+														"value": "@activity('Prepare DLS Target Info').output.blobName",
+														"type": "Expression"
+													}
+												},
+												"Customers": {},
+												"Products": {},
+												"CapitalCities": {},
+												"ProcessedOrdersSink": {}
+											}
+										},
+										"staging": {
+											"linkedService": {
+												"referenceName": "OrdersBlobStorageConnection",
+												"type": "LinkedServiceReference"
+											},
+											"folderPath": "staging-data//"
+										},
+										"compute": {
+											"coreCount": 8,
+											"computeType": "General"
+										},
+										"traceLevel": "Fine"
+									}
 								}
 							]
 						}
@@ -828,7 +1087,9 @@
 				"[concat(variables('factoryId'), '/linkedServices/DLSproviderFunctionConnection')]",
 				"[concat(variables('factoryId'), '/datasets/OrdersBlobStorageDataSet')]",
 				"[concat(variables('factoryId'), '/datasets/OrganizedOrdersDLSDataSet')]",
-				"[concat(variables('factoryId'), '/linkedServices/KavitaBlobMetaDataSqlConnection')]"
+				"[concat(variables('factoryId'), '/linkedServices/KavitaBlobMetaDataSqlConnection')]",
+				"[concat(variables('factoryId'), '/dataflows/ProcessOrdersDataFlow')]",
+				"[concat(variables('factoryId'), '/linkedServices/OrdersBlobStorageConnection')]"
 			]
 		}
 	]

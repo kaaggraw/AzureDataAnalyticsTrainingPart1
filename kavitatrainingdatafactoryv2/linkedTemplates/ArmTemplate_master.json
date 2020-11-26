@@ -19,6 +19,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'OrdersBlobStorageConnection'"
 		},
+		"AzureSqlDataWareHourseLinkedService_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'AzureSqlDataWareHourseLinkedService'"
+		},
 		"DLSTargetProviderFunctionCOnnection_properties_typeProperties_functionAppUrl": {
 			"type": "string",
 			"defaultValue": "https://dlstargetprovider20201125160234.azurewebsites.net"
@@ -70,6 +74,9 @@
 					},
 					"KavitaBlobMetaDataSqlConnection_connectionString": {
 						"value": "[parameters('KavitaBlobMetaDataSqlConnection_connectionString')]"
+					},
+					"AzureSqlDataWareHourseLinkedService_connectionString": {
+						"value": "[parameters('AzureSqlDataWareHourseLinkedService_connectionString')]"
 					},
 					"KavitaTrainingKeyVaultConnection_properties_typeProperties_baseUrl": {
 						"value": "[parameters('KavitaTrainingKeyVaultConnection_properties_typeProperties_baseUrl')]"
