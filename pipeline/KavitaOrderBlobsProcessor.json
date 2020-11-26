@@ -292,6 +292,60 @@
 								"referenceName": "KavitaBlobMetaDataSqlConnection",
 								"type": "LinkedServiceReference"
 							}
+						},
+						{
+							"name": "ProcessOrdersDataFlow",
+							"type": "ExecuteDataFlow",
+							"dependsOn": [
+								{
+									"activity": "Prepare DLS Target Info",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"dataflow": {
+									"referenceName": "ProcessOrdersDataFlow",
+									"type": "DataFlowReference",
+									"datasetParameters": {
+										"OrdersInputSource": {
+											"containerName": {
+												"value": "@activity('Prepare DLS Target Info').output.containerName",
+												"type": "Expression"
+											},
+											"folder": {
+												"value": "@activity('Prepare DLS Target Info').output.path",
+												"type": "Expression"
+											},
+											"fileName": {
+												"value": "@activity('Prepare DLS Target Info').output.blobName",
+												"type": "Expression"
+											}
+										}
+									}
+								},
+								"staging": {
+									"linkedService": {
+										"referenceName": "OrdersBlobStorageConnection",
+										"type": "LinkedServiceReference"
+									},
+									"folderPath": "staging-data//"
+								},
+								"compute": {
+									"coreCount": 8,
+									"computeType": "General"
+								},
+								"traceLevel": "Fine"
+							}
 						}
 					]
 				}
