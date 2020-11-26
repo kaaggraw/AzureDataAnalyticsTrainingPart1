@@ -11,11 +11,32 @@
 						"type": "DatasetReference"
 					},
 					"name": "OrdersInputSource"
+				},
+				{
+					"dataset": {
+						"referenceName": "CustomerDLSDataSet",
+						"type": "DatasetReference"
+					},
+					"name": "Customers"
+				},
+				{
+					"dataset": {
+						"referenceName": "ProductsDLSDataSet",
+						"type": "DatasetReference"
+					},
+					"name": "Products"
+				},
+				{
+					"dataset": {
+						"referenceName": "CapitalCitiesDataSet",
+						"type": "DatasetReference"
+					},
+					"name": "CapitalCities"
 				}
 			],
 			"sinks": [],
 			"transformations": [],
-			"script": "source(output(\n\t\torderid as integer,\n\t\torderdate as string,\n\t\tcustomer as integer,\n\t\tproduct as integer,\n\t\tunits as integer,\n\t\tbillingaddress as string,\n\t\tremarks as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> OrdersInputSource"
+			"script": "source(output(\n\t\torderid as integer,\n\t\torderdate as string,\n\t\tcustomer as integer,\n\t\tproduct as integer,\n\t\tunits as integer,\n\t\tbillingaddress as string,\n\t\tremarks as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> OrdersInputSource\nsource(output(\n\t\tcustomerid as integer,\n\t\tfullname as string,\n\t\taddress as string,\n\t\tcredit as integer,\n\t\tstatus as boolean\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> Customers\nsource(output(\n\t\titemdiscount as short,\n\t\tproductid as short,\n\t\ttitle as string,\n\t\tunitprice as short,\n\t\tunitsinstock as short\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tdocumentForm: 'arrayOfDocuments') ~> Products\nsource(output(\n\t\tCityId as integer,\n\t\tCityName as string,\n\t\tRegion as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> CapitalCities"
 		}
 	}
 }
