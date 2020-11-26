@@ -356,6 +356,50 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/ProductsDLSDataSet')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "OrganizedDLSCOnnection",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "products.json",
+						"folderPath": "master-data",
+						"fileSystem": "organized-data"
+					}
+				},
+				"schema": {
+					"type": "object",
+					"properties": {
+						"productid": {
+							"type": "integer"
+						},
+						"title": {
+							"type": "string"
+						},
+						"unitsinstock": {
+							"type": "integer"
+						},
+						"unitprice": {
+							"type": "integer"
+						},
+						"itemdiscount": {
+							"type": "integer"
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/OrganizedDLSCOnnection')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/KavitaBlobMetadataDataSet')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -433,6 +477,41 @@
 				"typeProperties": {
 					"schema": "dbo",
 					"table": "BlobMetadata"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/KavitaBlobMetaDataSqlConnection')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/CapitalCitiesDataSet')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "KavitaBlobMetaDataSqlConnection",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "CityId",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "CityName",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Region",
+						"type": "varchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "CapitalCities"
 				}
 			},
 			"dependsOn": [
