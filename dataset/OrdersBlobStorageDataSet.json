@@ -16,7 +16,7 @@
 			},
 			"fileName": {
 				"type": "string",
-				"defaultValue": "new-order.csv"
+				"defaultValue": "orders-1.csv"
 			}
 		},
 		"annotations": [],
